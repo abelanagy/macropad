@@ -14,16 +14,16 @@ keyboard = KMKKeyboard()
 keyboard.modules = [encoder_handler]
 keyboard.extensions.append(MediaKeys())
 
-keyboard.col_pins = (board.GP2, board.GP3)
+keyboard.col_pins = (board.GP2, board.GP3, board.GP4)
 keyboard.row_pins = (board.GP1,)
 keyboard.diode_orientation = DiodeOrientation.COL2ROW
 
 keyboard.keymap = [
-    [KC.AUDIO_VOL_DOWN, KC.AUDIO_VOL_UP]
+    [KC.AUDIO_VOL_DOWN, KC.AUDIO_VOL_UP, KC.AUDIO_MUTE]
 ]
 
 encoder_handler.pins = (
-    (board.GP17, board.GP16, None,),)
+    (board.GP17, board.GP18, None,),)
 
 encoder_handler.map = [ (( KC.AUDIO_VOL_DOWN, KC.AUDIO_VOL_UP,),),]
 
