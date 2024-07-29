@@ -1,4 +1,4 @@
-print("Starting")
+# This is the custom written firmware for my macropad using the kmk library.
 
 import board
 
@@ -7,25 +7,73 @@ from kmk.keys import KC
 from kmk.scanners import DiodeOrientation
 from kmk.extensions.media_keys import MediaKeys
 from kmk.modules.encoder import EncoderHandler
-
-encoder_handler = EncoderHandler()
+from kmk.extensions.LED import LED
+from kmk.modules.macros import Macros
+from kmk.modules.macros import Press, Release, Tap
 
 keyboard = KMKKeyboard()
-keyboard.modules = [encoder_handler]
-keyboard.extensions.append(MediaKeys())
 
-keyboard.col_pins = (board.GP2, board.GP3, board.GP4)
-keyboard.row_pins = (board.GP1,)
+encoder_handler = EncoderHandler()
+led = LED(led_pin=[board.GP16, board.GP17, board.GP18]) # The LEDs can indicate bootup and which layer is currently active.
+macros = Macros()
+
+keyboard.col_pins = (board.GP0, board.GP1, board.GP2)   # Key matrix consisting of 3 columns and 5 rows.
+keyboard.row_pins = (board.GP3, board.GP4, board.GP5, board.GP6, board.GP7)
 keyboard.diode_orientation = DiodeOrientation.COL2ROW
 
+keyboard.extensions.append(MediaKeys())
+keyboard.extensions.append(led)
+keyboard.modules = [encoder_handler]
+keyboard.modules.append(macros)
+
+
+OPEN_MESSENGER = KC.MACRO(  # These are the macros for opening the respective applications.
+    Tap(KC.LGUI),  # The first key is the windows key, which opens the start menu.
+    "Messenger",   # The second key is the name of the application. 
+    Tap(KC.ENTER), # It then searches for the application in the start menu.
+)
+
+OPEN_DC = KC.MACRO(
+    Tap(KC.LGUI),
+    "Discord",
+    Tap(KC.ENTER),
+)
+OPEN_GG = KC.MACRO(
+    Tap(KC.LGUI),
+    "SteelSeries GG",
+    Tap(KC.ENTER),
+)
+
 keyboard.keymap = [
-    [KC.AUDIO_VOL_DOWN, KC.AUDIO_VOL_UP, KC.AUDIO_MUTE]
+    [   # Base layer
+        KC.MO(1), KC.LGUI(KC.L), KC.AUDIO_MUTE,   # The first key is a layer switcher, the second key locks the pc and the third key is a mute button. This works together with the rotary encoder functionality.
+        KC.N1, KC.N2, KC.N3,
+        KC.N4, KC.N5, KC.N6,   # Numpad for now, will be changed to a custom layer
+        KC.N7, KC.N8, KC.N9,
+        KC.NO, KC.N0, KC.NÖ
+    ],
+    [   # Layer 1
+        KC.MO(1), KC.LGUI(KC.L), KC.AUDIO_MUTE,   # The first key is a layer switcher, the second key locks the pc and the third key is a mute button. This works together with the rotary encoder functionality.
+        OPEN_MESSENGER, OPEN_DC, OPEN_GG,   # These are the macros for opening the respective applications.
+        KC.NO, KC.NO, KC.NO,    # These keys are not yet assigned.
+        KC.NO, KC.NO, KC.NO,
+        KC.NO, KC.NO, KC.NÖ
+    ]
 ]
 
 encoder_handler.pins = (
-    (board.GP17, board.GP18, None,),)
+    (board.GP8, board.GP9, None),   # The third pin could be used for the button of the rotary encoders, but in my case, it is hooked up to the key matrix.
+    (board.GP10, board.GP11, None),
+    (board.GP12, board.GP13, None)
+    )
 
-encoder_handler.map = [ (( KC.AUDIO_VOL_DOWN, KC.AUDIO_VOL_UP,),),]
+encoder_handler.map = [
+    (  # Base layer
+        ( KC.NO, KC.NO, None), # No action for the first encoder yet
+        ( KC.BRID, KC.BRIU, None),  # Brightness down and up
+        ( KC.AUDIO_VOL_DOWN, KC.AUDIO_VOL_UP, None) # Volume down and up
+    )
+]
 
 if __name__ == '__main__':
     keyboard.go()
